@@ -19,10 +19,14 @@ def adicionarTarefa():
     nome_tarefa = str(input("Digite o nome da tarefa: ")).strip()
     #Declarando o status da tarefa
     status = str(input("Qual o status dessa tarefa?: ")).strip()
-    #Método para inserir novos elementos na lista
-    tarefas.append((nome_tarefa, status))
-    #Imprimindo a última inserção
-    print(colored(f"Tarefa adicionada: {tarefas[-1]}", "green"))
+    #Validação de campos vazios
+    if nome_tarefa and status != "":
+        #Método para inserir novos elementos na lista
+        tarefas.append((nome_tarefa, status))
+        #Imprimindo a última inserção
+        print(colored(f"Tarefa adicionada: {tarefas[-1]}", "green"))
+    else:
+        print(colored("Insira os campos corretamente!", "red"))
 
 #Função para excluir uma tarefa da lista
 def excluirTarefas():
@@ -47,8 +51,11 @@ def alterarTarefas():
         nome_tarefa = str(input("Digite o nome da tarefa: ")).strip()
         #Digitando o novo status da tarefa
         status = str(input("Qual o status dessa tarefa?: ")).strip()
-        #Realizando a alteração na lista
-        tarefas[tarefa_alterar] = (nome_tarefa, status)
+        if nome_tarefa and status != "":
+            #Realizando a alteração na lista
+            tarefas[tarefa_alterar] = (nome_tarefa, status)
+        else:
+            print(colored("Insira os campos corretamente!", "red"))
     else:
         #Se o indice não for encontrado, imrpima:
         print(colored("Tarefa não encontrada", "yellow"))
