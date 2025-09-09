@@ -17,6 +17,9 @@ print()
 print(f"O valor na primeira célula é: {ws['A1'].value}")
 
 # Sempre que tiver uma atualização no excel realizada internamente pelo código, é necessário salvá-lo com o codigo da linha 21
-ws['A1'] = "Matheus"
+ws['A2'] = str(input("Qual seu nome?: "))
+ws['B2'] = str(input("Qual sua idade?: "))
+ws['C2'] = str(input("Qual seu estado cívil?: "))
+ws['D2'] = str(input("Qual sua cidade de residência?: "))
 wb.save("teste.xlsx")
 print(ws["A1"].value)
