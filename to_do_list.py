@@ -1,8 +1,14 @@
 #Importando as cores a serem usadas no código
 from termcolor import colored
+import mysql.connector
 
-#Lista onde ficará armazenada as tarefas
-tarefas = []
+conexao = mysql.connector.connect(
+    host = "127.0.0.1",
+    user = "root",
+    password= "12345678",
+    database = "TDPListdb"
+)
+cursor = conexao.cursor()
 
 #Menu de escolhas ao usuário
 menu = """
@@ -21,55 +27,54 @@ def adicionarTarefa():
     status = str(input("Qual o status dessa tarefa?: ")).strip()
     #Validação de campos vazios
     if nome_tarefa and status != "":
-        #Método para inserir novos elementos na lista
-        tarefas.append((nome_tarefa, status))
-        #Imprimindo a última inserção
-        print(colored(f"Tarefa adicionada: {tarefas[-1]}", "green"))
+        cursor.execute("insert into tbl_tarefas(nome, status) values (%s, %s)", (nome_tarefa, status))
+        conexao.commit()
+        print(colored("Tarefa adicionada com sucesso!", "green"))
     else:
         print(colored("Insira os campos corretamente!", "red"))
 
 #Função para excluir uma tarefa da lista
 def excluirTarefas():
     #Inserindo o indice da tarefa a ser excluída
-    tarefa_excluir = int(input("Digite o indice da tarefa a excluir: "))
-    #Verificando se o que foi inserido está presente na lista (maior ou igual a zero e menor ou igual a quantidade de itens na lista)
-    if tarefa_excluir >= 0 and tarefa_excluir < len(tarefas):
-        #Metodo para excluir um item da lista de acordo com um parametro
-        tarefa_excluida = tarefas.pop(tarefa_excluir)
-        #Imprimindo a tarefa exlcuida
-        print(colored(f"Tarefa excluída: {tarefa_excluida[0]}", "red"))
+    id_tarefa = input("Digite o ID da tarefa a excluir: ")
+   
+    if id_tarefa.isdigit():
+        cursor.execute("delete from tbl_tarefas where id = %s", (id_tarefa,))
+        conexao.commit()
+        print(colored("Tarefa excluída!", "red"))
     else:
-        print(colored("Tarefa não encontrada", "yellow"))
+        print(colored("ID inválido", "yellow"))
 
 #Função para alterar uma tarefa
 def alterarTarefas():
     #Inserindo o indice da tarefa a ser alterada
-    tarefa_alterar = int(input("Digite o indice da tarefa a se alterar: "))
-    #Verificando se o que foi inserido está presente na lista (maior ou igual a zero e menor ou igual a quantidade de itens na lista)
-    if tarefa_alterar >= 0 and tarefa_alterar < len(tarefas):
+    id_tarefa = input("Digite o ID da tarefa a se alterar: ")
+    
+    if id_tarefa.isdigit():
         #Digitando o novo nome da tarefa
         nome_tarefa = str(input("Digite o nome da tarefa: ")).strip()
         #Digitando o novo status da tarefa
         status = str(input("Qual o status dessa tarefa?: ")).strip()
-        if nome_tarefa and status != "":
-            #Realizando a alteração na lista
-            tarefas[tarefa_alterar] = (nome_tarefa, status)
+        if nome_tarefa != "" and status != "":
+            cursor.execute("update tbl_tarefas set nome = %s, status = %s where id = %s", (nome_tarefa, status, id_tarefa))
+            conexao.commit()
+            print(colored("Tarefa alterada com sucesso!", "cyan"))
         else:
             print(colored("Insira os campos corretamente!", "red"))
     else:
         #Se o indice não for encontrado, imrpima:
-        print(colored("Tarefa não encontrada", "yellow"))
-    return
+        print(colored("ID inválido", "yellow"))
 
 #Função para exibir todas as tarefas inseridas
 def exibirTarefas():
+    cursor.execute("select * from tbl_tarefas")
+    tarefas = cursor.fetchall()
+
     #Se a tarefa for diferente de 0, faça:
-    if tarefas != []:
+    if tarefas:
         #Looping que percorre a lista pegando os elementos e seus indices
-        for indice, tarefa in enumerate(tarefas):
-            #Exibindo os indices e os elementos
-            print(f"{indice}: - {tarefa}")
-    #Se a condição acima não for satisfeitam faça:
+        for tarefa in tarefas:
+            print(f"{tarefa[0]} - {tarefa[1]} - {tarefa[2]}")
     else:
         print(colored("Sem tarefas", "yellow"))
 
@@ -99,3 +104,6 @@ while True:
         #Encerrando o looping
         print(colored("Obrigado por usar o To Do PyList!", "cyan"))
         break
+
+cursor.close()
+conexao.close()
